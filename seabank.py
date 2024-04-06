@@ -91,7 +91,7 @@ class SeaBank:
             "productName": ""
         }
         history =  self.curl_post('https://ebankms1.seanet.vn/p03/api/p03-statement/get-trans-list-new', param, True)
-        if history['data']:
+        if 'data' in history and history['data']:
             records = history['data'][-limit:]
             history['data'] = records
         return history
