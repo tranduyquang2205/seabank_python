@@ -44,7 +44,7 @@ class SeaBank:
             self.id_token = data.get('id_token', '')
             self.username_id = data.get('username_id', '')
 
-    def     do_login(self):
+    def do_login(self):
         param = {
             "username": self.username,
             "password": self.password,
@@ -52,12 +52,11 @@ class SeaBank:
             "context": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
             "channel": "SEAMOBILE3.0",
             "subChannel": "SEANET",
-            "uuid": "",
             "passwordType": "PLAINTEXT",
             "captcha": None,
             "location": None,
-            "longitude": "108.4504924",
-            "latitude": "11.9297702",
+            "longitude": None,
+            "latitude": None,
             "ipAddress": None,
             "machineName": None,
             "machineType": None,
@@ -66,6 +65,7 @@ class SeaBank:
             "contextFull": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.100.0"
         }
         result = self.curl_post('https://ebankbackend.seanet.vn/canhan/api/authenticate-hash', param)
+        print(result)
         if result['code'] == '00':
             self.username_id = result['data']['username']
             self.id_token = result['data']['id_token']
@@ -137,21 +137,21 @@ class SeaBank:
     def curl_post(self, url, data=None, with_authen=False):
         try:
             headers = self.header_null(True)
-            proxy_url = "103.189.75.146:40508"
-            proxy_username = "linhvudieu329"
-            proxy_password = "l0Ks3Jp"
+            # proxy_url = "103.189.75.146:40508"
+            # proxy_username = "linhvudieu329"
+            # proxy_password = "l0Ks3Jp"
 
-            # Construct the proxy credentials
-            proxy_credentials = f"{proxy_username}:{proxy_password}"
-            proxy_auth = requests.auth.HTTPProxyAuth(proxy_username, proxy_password)
+            # # Construct the proxy credentials
+            # proxy_credentials = f"{proxy_username}:{proxy_password}"
+            # proxy_auth = requests.auth.HTTPProxyAuth(proxy_username, proxy_password)
 
-            # Set up the proxy dictionary
-            proxies = {
-                "http": f"http://{proxy_credentials}@{proxy_url}",
-                "https": f"http://{proxy_credentials}@{proxy_url}"
-            }
+            # # Set up the proxy dictionary
+            # proxies = {
+            #     "http": f"http://{proxy_credentials}@{proxy_url}",
+            #     "https": f"http://{proxy_credentials}@{proxy_url}"
+            # }
             headers = self.header_null(with_authen)
-            response = requests.post(url, headers=headers, json=data, timeout=60,proxies=proxies)
+            response = requests.post(url, headers=headers, json=data, timeout=60)
             result = response.json()
             return result
         except Exception as e:
@@ -159,18 +159,18 @@ class SeaBank:
 
     def header_null(self, with_authen=False):
         header = {
-            'Accept': 'application/json',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'vi',
-            'Connection': 'keep-alive',
-            'Content-Type': 'application/json',
-            'Origin': 'https://seanet.vn',
-            'Referer': 'https://seanet.vn/',
-            'sec-ch-ua-mobile': '?0',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-site',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36',
+        'accept': 'application/json, text/plain, */*',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'application/json',
+        'origin': 'https://seanet.vn',
+        'referer': 'https://seanet.vn/',
+        'sec-ch-ua': '"Microsoft Edge";v="123", "Not:A-Brand";v="8", "Chromium";v="123"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36 Edg/123.0.0.0'
         }
         if with_authen:
             header['Authorization'] = 'Bearer ' + self.id_token
