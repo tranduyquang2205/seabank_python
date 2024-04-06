@@ -115,20 +115,20 @@ class SeaBank:
     def curl_get(self, url):
         try:
             headers = self.header_null(True)
-            proxy_url = "http://103.189.75.146:40508"
-            proxy_username = "linhvudieu329"
-            proxy_password = "l0Ks3Jp"
+            # proxy_url = "http://103.189.75.146:40508"
+            # proxy_username = "linhvudieu329"
+            # proxy_password = "l0Ks3Jp"
 
             # Construct the proxy credentials
-            proxy_credentials = f"{proxy_username}:{proxy_password}"
-            proxy_auth = requests.auth.HTTPProxyAuth(proxy_username, proxy_password)
+            # proxy_credentials = f"{proxy_username}:{proxy_password}"
+            # proxy_auth = requests.auth.HTTPProxyAuth(proxy_username, proxy_password)
 
-            # Set up the proxy dictionary
-            proxies = {
-                "http": f"http://{proxy_credentials}@{proxy_url}",
-                "https": f"http://{proxy_credentials}@{proxy_url}"
-            }
-            response = requests.get(url, headers=headers, timeout=60,proxies=proxies)
+            # # Set up the proxy dictionary
+            # proxies = {
+            #     "http": f"http://{proxy_credentials}@{proxy_url}",
+            #     "https": f"http://{proxy_credentials}@{proxy_url}"
+            # }
+            response = requests.get(url, headers=headers, timeout=60)
             result = response.json()
             return result
         except Exception as e:
