@@ -65,8 +65,10 @@ class SeaBank:
             "contextFull": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.100.0"
         }
         result = self.curl_post('https://ebankbackend.seanet.vn/canhan/api/authenticate-hash', param)
-        print(result)
+        
         if result['code'] == '00':
+            self.is_login = True
+            result['success'] = True
             self.username_id = result['data']['username']
             self.id_token = result['data']['id_token']
             self.customer_id = result['data']['customerId']
@@ -108,6 +110,24 @@ class SeaBank:
     
     def check_bank_name_in(self,account_number):
         return self.curl_post('https://ebankms2.seanet.vn/p0405/api/swib-enquiry/check-customer-info/'+str(account_number))
+    
+    def mapping_bank_code(self,bank_name):
+        with open('banks.json','r', encoding='utf-8') as f:
+            data = json.load(f)
+        for bank in data['data']:
+            if bank['shortName'].lower() == bank_name.lower():
+                return bank['bin']
+        return None
+    def get_bank_name(self, ben_account_number, bank_name):
+        if not self.is_login:
+            login = self.do_login()
+            if not login['success']:
+                return login
+        if 'bank_name' == 'SeABank':
+            return self.check_bank_name_in(ben_account_number)
+        else:
+            bank_code = self.mapping_bank_code(bank_name)
+            return self.check_bank_name_in(bank_code,ben_account_number)
     
     def get_list_bank(self):
         return self.curl_get('https://ebankms2.seanet.vn/p0405/api/get-list-bank')
