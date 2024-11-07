@@ -19,7 +19,7 @@ class SeaBank:
             self.save_data()
         else:
             self.parse_data()
-            self.password = hashlib.sha256(password.encode()).hexdigest()
+            self.password = password
             self.username = username
             self.account_number = account_number
             self.save_data()
@@ -56,15 +56,19 @@ class SeaBank:
             self.is_login = data.get('is_login', '')
             self.time_login = data.get('time_login', '')
 
-    def do_login(self):
+    def do_login(self,passwordType="PLAINTEXT"):
+        if passwordType == 'HASH':
+            n_password = hashlib.sha256(self.password.encode()).hexdigest()
+        else:
+            n_password = self.password
         param = {
             "username": self.username,
-            "password": self.password,
+            "password": n_password,
             "rememberMe": False,
             "context": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
             "channel": "SEAMOBILE3.0",
             "subChannel": "SEANET",
-            "passwordType": "HASH",
+            "passwordType": passwordType,
             "captcha": None,
             "location": None,
             "longitude": None,
@@ -95,6 +99,8 @@ class SeaBank:
                 'data': result if result else ""
             }
         elif 'code' in result and result['code'] == 'BANKAPI-AUTHENAPI-50304':
+            if passwordType == "PLAINTEXT":
+                return self.do_login("HASH")
             return {
             'code': 444,
             'success': False,
