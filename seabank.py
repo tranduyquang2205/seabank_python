@@ -2,18 +2,19 @@ import requests
 import json
 import time
 import hashlib
-
+import uuid
 # from smart_otp import get_smart_otp
 class SeaBank:
     def __init__(self, username, password, account_number):
         self.file = f"data/{username}.txt"
-        self.password = hashlib.sha256(password.encode()).hexdigest()
+        self.password = password
         self.username = username
         self.account_number = account_number
         self.id_token = ""
         self.username_id = ""
         self.is_login = False
         self.time_login = time.time()
+        self.context = str(uuid.uuid4())+'_Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0'
         self.customer_id = ""
         if not self._file_exists():
             self.save_data()
@@ -40,6 +41,7 @@ class SeaBank:
             'username_id': self.username_id,
             'is_login': self.is_login,
             'time_login': self.time_login,
+            'context': self.context,
         }
         with open(self.file, 'w') as f:
             json.dump(data, f)
@@ -55,9 +57,12 @@ class SeaBank:
             self.username_id = data.get('username_id', '')
             self.is_login = data.get('is_login', '')
             self.time_login = data.get('time_login', '')
+            self.context = data.get('context', '')
 
-    def do_login(self,passwordType="PLAINTEXT"):
+    def do_login(self,passwordType="HASH"):
+        
         if passwordType == 'HASH':
+            
             n_password = hashlib.sha256(self.password.encode()).hexdigest()
         else:
             n_password = self.password
@@ -65,7 +70,7 @@ class SeaBank:
             "username": self.username,
             "password": n_password,
             "rememberMe": False,
-            "context": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+            "context": self.context,
             "channel": "SEAMOBILE3.0",
             "subChannel": "SEANET",
             "passwordType": passwordType,
@@ -78,7 +83,7 @@ class SeaBank:
             "machineType": None,
             "application": None,
             "version": None,
-            "contextFull": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.100.0"
+            "contextFull": self.context
         }
         result = self.curl_post('https://ebankbackend.seanet.vn/canhan/api/authenticate-hash', param)
         
@@ -99,8 +104,8 @@ class SeaBank:
                 'data': result if result else ""
             }
         elif 'code' in result and result['code'] == 'BANKAPI-AUTHENAPI-50304':
-            if passwordType == "PLAINTEXT":
-                return self.do_login("HASH")
+            if passwordType == "HASH":
+                return self.do_login("PLAINTEXT")
             return {
             'code': 444,
             'success': False,
